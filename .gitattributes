@@ -16,3 +16,8 @@ package-template.wasi-browser.js linguist-detectable=false
 package-template.wasi.cjs        linguist-detectable=false
 wasi-worker-browser.mjs          linguist-detectable=false
 wasi-worker.mjs                  linguist-detectable=false
+
+# 1. 默认忽略所有文件 (将其视为第三方库/vendored)
+* linguist-vendored
+*.rs -linguist-vendored
+*.toml -linguist-vendored
