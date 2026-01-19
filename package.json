@@ -46,7 +46,8 @@
     "node": ">= 10"
   },
   "publishConfig": {
-    "registry": "https://nexus.haier.net/repository/dts-npm/"
+    "registry": "https://nexus.haier.net/repository/dts-npm/",
+    "access": "public"
   },
   "scripts": {
     "artifacts": "napi artifacts",
