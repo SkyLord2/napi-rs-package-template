@@ -3,6 +3,8 @@ use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 use std::fmt;
 
+use chrono::Local;
+
 use napi_derive::napi;
 use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
 
@@ -36,24 +38,24 @@ pub fn report_func(info: Vec<SomeInfo>) {
 fn report_log(msg: String) {
     if cfg!(debug_assertions) {
         println!("{}", msg);
+    } else if let Some(tsfn) = GLOBAL_LOG.get() {
+        tsfn.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
     } else {
-        if let Some(tsfn) = GLOBAL_LOG.get() {
-            tsfn.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
-        } else {
-            println!("Warning: No report log listener registered yet!");
-        }
+        println!("Warning: No report log listener registered yet!");
     }
 }
 
 #[doc(hidden)]
 pub(crate) fn report_error(msg: fmt::Arguments) {
-  let log_msg = format!("[wnd_error]: {}", msg);
+  let curr_time = get_current_time();
+    let log_msg = format!("[error]:{} - {}", curr_time, msg);
   report_log(log_msg);
 }
 
 #[doc(hidden)]
 pub(crate) fn report_info(msg: fmt::Arguments) {
-  let log_msg = format!("[wnd_info]: {}", msg);
+  let curr_time = get_current_time();
+  let log_msg = format!("[info]:{} - {}", curr_time, msg);
   report_log(log_msg);
 }
 
@@ -71,4 +73,8 @@ macro_rules! report_info_log {
     ($($arg:tt)*) => {
         $crate::global::report_info(format_args!($($arg)*))
     }
+}
+
+pub fn get_current_time() -> String {
+    Local::now().format("%Y-%m-%d %H:%M:%S.%3f").to_string()
 }
