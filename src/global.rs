@@ -46,16 +46,34 @@ fn report_log(msg: String) {
 }
 
 #[doc(hidden)]
-pub(crate) fn report_error(msg: fmt::Arguments) {
+pub(crate) fn report_error(
+    msg: fmt::Arguments,
+    module_path: &'static str,
+    file: &'static str,
+    line: u32,
+    column: u32,
+) {
   let curr_time = get_current_time();
-    let log_msg = format!("[error]:{} - {}", curr_time, msg);
+  let log_msg = format!(
+    "[selection_error]:{} - {}:{}:{} {} - {}",
+    curr_time, file, line, column, module_path, msg
+  );
   report_log(log_msg);
 }
 
 #[doc(hidden)]
-pub(crate) fn report_info(msg: fmt::Arguments) {
+pub(crate) fn report_info(
+    msg: fmt::Arguments,
+    module_path: &'static str,
+    file: &'static str,
+    line: u32,
+    column: u32,
+) {
   let curr_time = get_current_time();
-  let log_msg = format!("[info]:{} - {}", curr_time, msg);
+  let log_msg = format!(
+    "[info]:{} - {}:{}:{} {} - {}",
+    curr_time, file, line, column, module_path, msg
+  );
   report_log(log_msg);
 }
 
@@ -63,7 +81,13 @@ pub(crate) fn report_info(msg: fmt::Arguments) {
 macro_rules! report_error_log {
     // format_args! 是编译器内置宏，它不分配内存，只打包参数
     ($($arg:tt)*) => {
-        $crate::global::report_error(format_args!($($arg)*))
+        $crate::global::report_error(
+            format_args!($($arg)*),
+            module_path!(),
+            file!(),
+            line!(),
+            column!(),
+        )
     }
 }
 
@@ -71,7 +95,13 @@ macro_rules! report_error_log {
 macro_rules! report_info_log {
     // format_args! 是编译器内置宏，它不分配内存，只打包参数
     ($($arg:tt)*) => {
-        $crate::global::report_info(format_args!($($arg)*))
+        $crate::global::report_info(
+            format_args!($($arg)*),
+            module_path!(),
+            file!(),
+            line!(),
+            column!(),
+        )
     }
 }
 
