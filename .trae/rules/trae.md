@@ -62,7 +62,7 @@
 
 - Config 对象: 使用 #[napi(object)] 宏定义纯数据结构（POD），这比 Class 性能更高，因为它直接映射到 JS Object。
 
-## 5.2 Buffer 操作 (关键)
+### 5.2 Buffer 操作 (关键)
 
 处理二进制数据时，必须小心内存拷贝。
 
@@ -72,6 +72,22 @@
 
 - **外部引用**: 如果要直接操作 JS 内存而不复制，使用 napi::bindgen_prelude::Buffer 并注意生命周期管理。
 
-## 5.3 外部引用 (External)
+### 5.3 外部引用 (External)
 
 如果需要在 JS 对象中持有 Rust 的复杂数据结构（非 Copy 类型），使用 External<T>。这允许 JS "拥有" 一个指向 Rust 堆内存的指针，但不会直接序列化它。
+
+## 6. 测试策略 (Testing Strategy)
+
+本项目采用双层测试策略：
+
+- **Rust 单元测试 (cargo test)**:
+  - 针对纯算法逻辑，不涉及 JS 环境的代码。
+
+  - 放置在 src/ 下，使用 standard #[test]。
+
+- **JavaScript 集成测试 (ava / jest)**:
+  - 这是主要的测试方式。
+
+  - 必须编译并加载编译后的 .node 文件进行测试。
+
+  - 测试用例应覆盖所有导出的 API，包括边界条件和错误捕获（验证 Promise.reject）。
